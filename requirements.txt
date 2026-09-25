@@ -4,4 +4,16 @@ pandas
 opencv-python
 tensorflow
 keras
+customtkinter
+pillow
+pygrabber
+requests
+# API server (server/)
+fastapi
+uvicorn
+pymongo
+dnspython
+python-dotenv
+PyJWT
+bcrypt
 tkinter # its usually included with Python

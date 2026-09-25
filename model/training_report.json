@@ -1,0 +1,38 @@
+{
+  "date": "2026-09-25T15:46:28",
+  "results": {
+    "original": {
+      "accuracy": 0.56575682382134,
+      "precision": 0.5562310030395137,
+      "recall": 0.4728682170542636,
+      "f1": 0.5111731843575419,
+      "accidents_found": 183,
+      "accidents_missed": 204,
+      "false_alarms": 146,
+      "correct_non_accidents": 273
+    },
+    "installed": {
+      "accuracy": 0.7332506203473945,
+      "precision": 0.7118226600985221,
+      "recall": 0.7467700258397932,
+      "f1": 0.7288776796973518,
+      "accidents_found": 289,
+      "accidents_missed": 98,
+      "false_alarms": 117,
+      "correct_non_accidents": 302
+    },
+    "new": {
+      "accuracy": 0.9218362282878412,
+      "precision": 0.8767441860465116,
+      "recall": 0.9741602067183462,
+      "f1": 0.9228886168910648,
+      "accidents_found": 377,
+      "accidents_missed": 10,
+      "false_alarms": 53,
+      "correct_non_accidents": 366
+    }
+  },
+  "installed": true,
+  "test_images": 807,
+  "train_images": 5074
+}

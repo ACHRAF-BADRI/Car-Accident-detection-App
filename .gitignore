@@ -1,0 +1,21 @@
+# Secrets
+.env
+
+# Local data produced by the app
+settings.json
+Recordings/
+__pycache__/
+
+# Large model files (see README for download links)
+Yolo_Folder/yolov3.weights
+uploads_pending.json
+
+# Downloaded training images (download_training_data.py) and test videos
+Data/**/hf_cctv_*
+Data/**/detrac_*
+Traffic_vids/accident_*.mp4
+
+# Models too large for GitHub (100 MB limit) and local model backups
+model/model_weights.h5
+model/accident_model*.keras
+model/backup_*/

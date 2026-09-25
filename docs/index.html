@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AccidentAI — Détection d'accidents</title>
+  <meta name="description" content="AccidentAI détecte les accidents de la route en temps réel sur une vidéo ou une webcam : YOLOv3 + réseau de neurones, enregistrement, cloud et tableau de bord admin.">
+  <meta property="og:title" content="AccidentAI — Détection d'accidents en temps réel">
+  <meta property="og:description" content="Application Windows qui détecte les accidents de la route sur vidéo ou webcam.">
+  <meta property="og:image" content="assets/screens/detection.jpg">
+  <meta name="theme-color" content="#0b1020">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Navigation -->
+  <header class="nav" id="top">
+    <div class="container nav-inner">
+      <a class="brand" href="#top">
+        <img src="assets/logo.png" alt="" width="32" height="32">
+        <span>AccidentAI</span>
+      </a>
+      <nav class="nav-links" id="nav-links">
+        <a href="#features" data-i18n="nav.features">Fonctionnalités</a>
+        <a href="#how" data-i18n="nav.how">Fonctionnement</a>
+        <a href="#screens" data-i18n="nav.screens">Aperçu</a>
+        <a href="#download" data-i18n="nav.download">Télécharger</a>
+        <a href="#faq" data-i18n="nav.faq">FAQ</a>
+      </nav>
+      <div class="nav-actions">
+        <button class="lang" id="lang-toggle" type="button" aria-label="Changer de langue / Change language">
+          <span data-lang="fr">FR</span><span data-lang="en">EN</span>
+        </button>
+        <a class="btn btn-ghost btn-sm hide-sm" href="https://github.com/ACHRAF-BADRI/Car-Accident-detection-App" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+          GitHub
+        </a>
+        <button class="menu" id="menu-toggle" type="button" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="glow glow-1"></div>
+      <div class="glow glow-2"></div>
+      <div class="container hero-grid">
+        <div class="hero-text reveal">
+          <span class="pill"><span class="dot"></span><span data-i18n="hero.pill">Windows 10 / 11 · Gratuit et open source</span></span>
+          <h1 data-i18n="hero.title">Détectez les accidents de la route <span class="grad">en temps réel</span></h1>
+          <p class="lead" data-i18n="hero.lead">AccidentAI analyse une vidéo ou une webcam, repère les véhicules et déclenche une alerte dès qu'un accident apparaît — avec captures, enregistrement et sauvegarde dans le cloud.</p>
+          <div class="cta">
+            <a class="btn btn-primary btn-lg download-link" href="https://github.com/ACHRAF-BADRI/Car-Accident-detection-App/releases" data-download>
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3 5.5 10.5 4.5v7H3v-6Zm8.5-1.1L21 3v8.5h-9.5V4.4ZM3 12.5h7.5v7L3 18.5v-6Zm8.5 0H21V21l-9.5-1.3v-7.2Z"/></svg>
+              <span data-i18n="cta.download">Télécharger pour Windows</span>
+            </a>
+            <a class="btn btn-ghost btn-lg" href="#screens" data-i18n="cta.screens">Voir l'aperçu</a>
+          </div>
+          <p class="release-info" data-release-info data-i18n="release.loading">Recherche de la dernière version…</p>
+        </div>
+        <div class="hero-visual reveal">
+          <div class="window">
+            <div class="window-bar"><i></i><i></i><i></i><span>AccidentAI</span></div>
+            <img src="assets/screens/detection.jpg" alt="Détection d'un accident dans l'application" width="1280" height="800">
+          </div>
+          <div class="float-card">
+            <span class="float-dot"></span>
+            <div>
+              <strong>ACCIDENT · 97.1%</strong>
+              <small data-i18n="hero.float">Capture enregistrée et envoyée</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stats strip -->
+    <section class="strip">
+      <div class="container strip-grid reveal">
+        <div><strong>YOLOv3</strong><span data-i18n="strip.yolo">détection des véhicules</span></div>
+        <div><strong>CNN</strong><span data-i18n="strip.cnn">classification accident</span></div>
+        <div><strong>MongoDB Atlas</strong><span data-i18n="strip.cloud">images et vidéos dans le cloud</span></div>
+        <div><strong>FR · EN</strong><span data-i18n="strip.lang">interface bilingue</span></div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow" data-i18n="features.eyebrow">Fonctionnalités</span>
+          <h2 data-i18n="features.title">Tout ce qu'il faut pour surveiller une route</h2>
+        </div>
+        <div class="features">
+          <article class="feature reveal">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Zm13 3.5 5-3v9l-5-3" /></svg></div>
+            <h3 data-i18n="f1.title">Vidéo ou webcam</h3>
+            <p data-i18n="f1.text">Ouvrez une vidéo ou branchez une caméra : l'analyse se fait en direct, avec pause, reprise et arrêt.</p>
+          </article>
+          <article class="feature reveal">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3Zm-1 12.5-3.5-3.5 1.4-1.4 2.1 2.1 4.6-4.6 1.4 1.4-6 6Z"/></svg></div>
+            <h3 data-i18n="f2.title">Alertes automatiques</h3>
+            <p data-i18n="f2.text">Au-dessus du seuil choisi, l'écran passe en alerte et une capture de l'accident est enregistrée.</p>
+          </article>
+          <article class="feature reveal">
+            <div class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z"/></svg></div>
+            <h3 data-i18n="f3.title">Enregistrement</h3>
+            <p data-i18n="f3.text">Enregistrez la webcam pendant des heures ou des jours, découpée en fichiers d'une heure, et relisez-la jusqu'à 16×.</p>
+          </article>
+          <article class="feature reveal">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M6.5 19a4.5 4.5 0 0 1-.4-9A6 6 0 0 1 17.7 9a4.5 4.5 0 0 1-.2 10h-11Z"/></svg></div>
+            <h3 data-i18n="f4.title">Sauvegarde dans le cloud</h3>
+            <p data-i18n="f4.text">Chaque image et chaque vidéo est envoyée automatiquement, et renvoyée plus tard si la connexion manque.</p>
+          </article>
+          <article class="feature reveal">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M4 20V10h3v10H4Zm6.5 0V4h3v16h-3ZM17 20v-7h3v7h-3Z"/></svg></div>
+            <h3 data-i18n="f5.title">Espace administrateur</h3>
+            <p data-i18n="f5.text">Tableau de bord, gestion des comptes (créer, suspendre, supprimer) et accès aux images et vidéos de chacun.</p>
+          </article>
+          <article class="feature reveal">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm6.9 6h-3a15.7 15.7 0 0 0-1.4-3.6A8 8 0 0 1 18.9 8ZM12 4a14 14 0 0 1 1.9 4h-3.8A14 14 0 0 1 12 4ZM4.3 14a8 8 0 0 1 0-4h3.4a16.5 16.5 0 0 0 0 4H4.3Zm.8 2h3a15.7 15.7 0 0 0 1.4 3.6A8 8 0 0 1 5.1 16ZM8 8H5.1a8 8 0 0 1 4.4-3.6A15.7 15.7 0 0 0 8.1 8Zm4 12a14 14 0 0 1-1.9-4h3.8A14 14 0 0 1 12 20Zm2.3-6H9.7a14.7 14.7 0 0 1 0-4h4.6a14.7 14.7 0 0 1 0 4Zm.2 5.6a15.7 15.7 0 0 0 1.4-3.6h3a8 8 0 0 1-4.4 3.6ZM16.3 14a16.5 16.5 0 0 0 0-4h3.4a8 8 0 0 1 0 4h-3.4Z"/></svg></div>
+            <h3 data-i18n="f6.title">Moderne et bilingue</h3>
+            <p data-i18n="f6.text">Thème clair, sombre ou système, interface en français ou en anglais, et comptes sécurisés.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="section section-alt" id="how">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow" data-i18n="how.eyebrow">Fonctionnement</span>
+          <h2 data-i18n="how.title">De l'image à l'alerte, en trois étapes</h2>
+        </div>
+        <ol class="steps">
+          <li class="step reveal">
+            <span class="step-num">1</span>
+            <h3 data-i18n="s1.title">Repérer les véhicules</h3>
+            <p data-i18n="s1.text">YOLOv3 trouve les voitures, bus, camions et motos dans chaque image de la vidéo.</p>
+          </li>
+          <li class="step reveal">
+            <span class="step-num">2</span>
+            <h3 data-i18n="s2.title">Reconnaître l'accident</h3>
+            <p data-i18n="s2.text">Un réseau de neurones entraîné sur des scènes de circulation estime la probabilité d'un accident.</p>
+          </li>
+          <li class="step reveal">
+            <span class="step-num">3</span>
+            <h3 data-i18n="s3.title">Alerter et garder une trace</h3>
+            <p data-i18n="s3.text">Au-delà du seuil, alerte à l'écran, capture enregistrée, envoi dans le cloud et entrée dans le journal.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Screenshots -->
+    <section class="section" id="screens">
+      <div class="container">
+        <div class="section-head reveal">
+          <span class="eyebrow" data-i18n="screens.eyebrow">Aperçu</span>
+          <h2 data-i18n="screens.title">Une interface claire, pensée pour la surveillance</h2>
+        </div>
+        <div class="gallery reveal">
+          <div class="tabs" role="tablist">
+            <button class="tab active" role="tab" data-shot="detection" data-i18n="tab.detection">Détection</button>
+            <button class="tab" role="tab" data-shot="profile" data-i18n="tab.profile">Mon profil</button>
+            <button class="tab" role="tab" data-shot="settings_light" data-i18n="tab.settings">Paramètres</button>
+            <button class="tab" role="tab" data-shot="login" data-i18n="tab.login">Connexion</button>
+          </div>
+          <button class="shot" type="button" id="shot" aria-label="Agrandir la capture">
+            <img id="shot-img" src="assets/screens/detection.jpg" alt="Capture de l'application" width="1280" height="800">
+          </button>
+          <p class="shot-caption" id="shot-caption" data-i18n="cap.detection">Un accident détecté en direct : véhicules encadrés, probabilité et journal des événements.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Download -->
+    <section class="section section-alt" id="download">
+      <div class="container">
+        <div class="download-card reveal">
+          <div class="download-main">
+            <img src="assets/logo.png" alt="" width="72" height="72">
+            <h2 data-i18n="dl.title">Installer AccidentAI</h2>
+            <p data-i18n="dl.text">Téléchargez le programme d'installation pour Windows, lancez-le, puis connectez-vous ou créez un compte.</p>
+            <a class="btn btn-primary btn-lg download-link" href="https://github.com/ACHRAF-BADRI/Car-Accident-detection-App/releases" data-download>
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 3v11.2l3.6-3.6 1.4 1.4-6 6-6-6 1.4-1.4 3.6 3.6V3h2ZM5 19h14v2H5v-2Z"/></svg>
+              <span data-i18n="cta.download">Télécharger pour Windows</span>
+            </a>
+            <p class="release-info" data-release-info data-i18n="release.loading">Recherche de la dernière version…</p>
+          </div>
+          <div class="download-side">
+            <h3 data-i18n="req.title">Configuration requise</h3>
+            <ul class="checks">
+              <li data-i18n="req.os">Windows 10 ou 11, 64 bits</li>
+              <li data-i18n="req.ram">8 Go de mémoire vive recommandés</li>
+              <li data-i18n="req.disk">Environ 3 Go d'espace disque</li>
+              <li data-i18n="req.net">Connexion Internet pour le compte et le cloud</li>
+              <li data-i18n="req.cam">Webcam facultative</li>
+            </ul>
+            <div class="note">
+              <strong data-i18n="note.title">Avertissement Windows SmartScreen</strong>
+              <p data-i18n="note.text">Le programme n'est pas signé : Windows peut afficher «&nbsp;Windows a protégé votre ordinateur&nbsp;». Cliquez sur «&nbsp;Informations complémentaires&nbsp;», puis «&nbsp;Exécuter quand même&nbsp;».</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section" id="faq">
+      <div class="container narrow">
+        <div class="section-head reveal">
+          <span class="eyebrow">FAQ</span>
+          <h2 data-i18n="faq.title">Questions fréquentes</h2>
+        </div>
+        <div class="faq">
+          <details class="reveal">
+            <summary data-i18n="q1">L'application est-elle gratuite ?</summary>
+            <p data-i18n="a1">Oui. Le code source est disponible sur GitHub.</p>
+          </details>
+          <details class="reveal">
+            <summary data-i18n="q2">Faut-il une carte graphique ?</summary>
+            <p data-i18n="a2">Non, tout fonctionne sur le processeur. La détection analyse environ 2 à 3 images par seconde sur un PC récent.</p>
+          </details>
+          <details class="reveal">
+            <summary data-i18n="q3">Où sont stockées mes images et mes vidéos ?</summary>
+            <p data-i18n="a3">Sur votre PC, dans un dossier propre à votre compte, et une copie est envoyée dans le cloud. Vous pouvez les supprimer à tout moment depuis l'application.</p>
+          </details>
+          <details class="reveal">
+            <summary data-i18n="q4">La détection est-elle fiable à 100 % ?</summary>
+            <p data-i18n="a4">Non. C'est un outil d'aide à la surveillance : il peut manquer un accident ou donner une fausse alerte. Le seuil d'alerte se règle dans les paramètres.</p>
+          </details>
+          <details class="reveal">
+            <summary data-i18n="q5">Quelles vidéos puis-je analyser ?</summary>
+            <p data-i18n="a5">Les fichiers MP4, AVI, MKV, WEBM et MOV, ainsi que les webcams branchées au PC. Les caméras de surveillance fixes donnent les meilleurs résultats.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="brand">
+        <img src="assets/logo.png" alt="" width="28" height="28">
+        <span>AccidentAI</span>
+      </div>
+      <p data-i18n="footer.text">Projet de détection d'accidents par vision par ordinateur — Python, OpenCV, TensorFlow.</p>
+      <a href="https://github.com/ACHRAF-BADRI/Car-Accident-detection-App" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </footer>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" hidden>
+    <button class="lightbox-close" id="lightbox-close" type="button" aria-label="Fermer">×</button>
+    <img id="lightbox-img" src="" alt="">
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
