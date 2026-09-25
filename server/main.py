@@ -15,18 +15,22 @@ from bson.errors import InvalidId
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.responses import Response, StreamingResponse
 from PIL import Image
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from starlette.concurrency import run_in_threadpool
 
 from server.auth import (check_password, create_token, current_user, hash_password, public_user,
                          require_admin)
-from server.db import db, downloads, init_db, media, media_files, now, users
+from server.db import attempts, db, downloads, init_db, media, media_files, now, users
 from server.notify import download_email, send_email
 
-app = FastAPI(title="Accident Detection API")
+# The interactive API docs (/docs) stay available locally but are not published on Render
+ON_RENDER = bool(os.environ.get("RENDER"))  # set automatically by Render
+app = FastAPI(title="Accident Detection API", docs_url=None if ON_RENDER else "/docs",
+              redoc_url=None if ON_RENDER else "/redoc", openapi_url=None if ON_RENDER else "/openapi.json")
 USERNAME_RE = re.compile(r"^[A-Za-z0-9_.-]{3,32}$")
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 MIN_PASSWORD = 6
+MAX_PASSWORD_BYTES = 72  # bcrypt limit
 KINDS = {"image", "video"}
 
 
@@ -39,6 +43,14 @@ def startup():
 
 EMAIL_EVERY_VISITOR_MINUTES = 10  # the same visitor clicking again within 10 min is counted, not emailed
 MAX_EMAILS_PER_HOUR = 20          # protects the mailbox (and the Resend quota) against spam clicks
+MAX_RECORDS_PER_VISITOR_HOUR = 5  # beyond that, clicks from the same visitor are ignored (no database flood)
+MAX_RECORDS_PER_HOUR = 300
+
+
+def visitor_id(request):
+    """Anonymous, salted fingerprint of the caller's IP: enough to rate-limit, the IP itself is never stored."""
+    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "")).split(",")[0].strip()
+    return hashlib.sha256((os.environ.get("JWT_SECRET_KEY", "") + ip).encode()).hexdigest()[:16]
 
 
 def describe_agent(ua):
@@ -66,8 +78,11 @@ async def track_download(request: Request):
         data = data if isinstance(data, dict) else {}
     except ValueError:
         data = {}
-    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "")).split(",")[0].strip()
-    visitor = hashlib.sha256((os.environ.get("JWT_SECRET_KEY", "") + ip).encode()).hexdigest()[:16]  # anonymous id
+    visitor = visitor_id(request)
+    hour_ago = now() - timedelta(hours=1)
+    if (downloads.count_documents({"visitor": visitor, "at": {"$gte": hour_ago}}) >= MAX_RECORDS_PER_VISITOR_HOUR
+            or downloads.count_documents({"at": {"$gte": hour_ago}}) >= MAX_RECORDS_PER_HOUR):
+        return Response(status_code=204)  # spam: not recorded, not emailed (the answer looks the same)
     ua = request.headers.get("user-agent", "")[:300]
     since_visitor = now() - timedelta(minutes=EMAIL_EVERY_VISITOR_MINUTES)
     should_email = (downloads.count_documents({"visitor": visitor, "at": {"$gte": since_visitor}}) == 0
@@ -96,15 +111,36 @@ def health():
 # ---------------------------------------------------------------- Auth
 
 class Credentials(BaseModel):
-    username: str
-    password: str
+    username: str = Field(max_length=64)
+    password: str = Field(max_length=256)
+
+
+def check_new_password(password):
+    if len(password) < MIN_PASSWORD:
+        raise HTTPException(400, "weak_password")
+    if len(password.encode()) > MAX_PASSWORD_BYTES:
+        raise HTTPException(400, "password_too_long")
+
+
+# Brute force protection: failures are counted per account and per visitor over a sliding window
+LOGIN_WINDOW = timedelta(minutes=15)
+MAX_FAILS_PER_ACCOUNT = 5     # then this account is locked for everyone for 15 min (the owner too)
+MAX_FAILS_PER_VISITOR = 20    # then this visitor cannot try any account for 15 min
+MAX_SIGNUPS_PER_VISITOR_HOUR = 5
+
+
+def too_many(key, limit, window):
+    return attempts.count_documents({"key": key, "at": {"$gte": now() - window}}) >= limit
+
+
+def record(*keys):
+    attempts.insert_many([{"key": k, "at": now()} for k in keys])
 
 
 def new_user(username, password, role="user", logged_in=False):
     if not USERNAME_RE.match(username):
         raise HTTPException(400, "invalid_username")
-    if len(password) < MIN_PASSWORD:
-        raise HTTPException(400, "weak_password")
+    check_new_password(password)
     if users.find_one({"username_lower": username.lower()}):
         raise HTTPException(409, "username_taken")
     user = {"username": username, "username_lower": username.lower(),
@@ -115,16 +151,25 @@ def new_user(username, password, role="user", logged_in=False):
 
 
 @app.post("/auth/register")
-def register(body: Credentials):
+def register(body: Credentials, request: Request):
+    signup_key = f"signup:{visitor_id(request)}"
+    if too_many(signup_key, MAX_SIGNUPS_PER_VISITOR_HOUR, timedelta(hours=1)):
+        raise HTTPException(429, "too_many_attempts")
     user = new_user(body.username, body.password, logged_in=True)
+    record(signup_key)
     return {"token": create_token(user), "user": public_user(user)}
 
 
 @app.post("/auth/login")
-def login(body: Credentials):
+def login(body: Credentials, request: Request):
+    account_key, visitor_key = f"login:{body.username.lower()}", f"login-visitor:{visitor_id(request)}"
+    if too_many(account_key, MAX_FAILS_PER_ACCOUNT, LOGIN_WINDOW) or too_many(visitor_key, MAX_FAILS_PER_VISITOR, LOGIN_WINDOW):
+        raise HTTPException(429, "too_many_attempts")
     user = users.find_one({"username_lower": body.username.lower()})
     if user is None or not check_password(body.password, user["password_hash"]):
+        record(account_key, visitor_key)
         raise HTTPException(401, "invalid_credentials")
+    attempts.delete_many({"key": account_key})  # a successful login clears the account's failures
     if not user.get("active", True):
         raise HTTPException(403, "account_suspended")
     users.update_one({"_id": user["_id"]}, {"$set": {"last_login": now()}})
@@ -174,8 +219,7 @@ class PasswordChange(BaseModel):
 def change_password(body: PasswordChange, user=Depends(current_user)):
     if not check_password(body.current_password, user["password_hash"]):
         raise HTTPException(400, "wrong_current_password")
-    if len(body.new_password) < MIN_PASSWORD:
-        raise HTTPException(400, "weak_password")
+    check_new_password(body.new_password)
     users.update_one({"_id": user["_id"]}, {"$set": {"password_hash": hash_password(body.new_password)}})
     return {"changed": True}
 
@@ -351,8 +395,7 @@ def admin_update_profile(user_id: str, body: AdminProfileUpdate, _=Depends(requi
     target = find_user(user_id)
     changes = profile_changes(body)
     if body.password:
-        if len(body.password) < MIN_PASSWORD:
-            raise HTTPException(400, "weak_password")
+        check_new_password(body.password)
         changes["password_hash"] = hash_password(body.password)
     if changes:
         users.update_one({"_id": target["_id"]}, {"$set": changes})

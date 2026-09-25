@@ -2,7 +2,7 @@ const REPO = "ACHRAF-BADRI/Car-Accident-detection-App";
 const RELEASES_PAGE = `https://github.com/${REPO}/releases`;
 // API server on Render: each click on the download button is counted there and emailed to the owner.
 // Leave empty to disable. Example: "https://accidentai-api.onrender.com"
-const API_URL = "";
+const API_URL = "https://accidentai-api.onrender.com";
 
 /* ---------------------------------------------------------------- Translations */
 const I18N = {

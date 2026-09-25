@@ -20,6 +20,8 @@ def hash_password(password):
 
 
 def check_password(password, password_hash):
+    if len(password.encode()) > 72:  # bcrypt 5 raises on longer input; no stored password can be that long
+        return False
     return bcrypt.checkpw(password.encode(), password_hash.encode())
 
 
