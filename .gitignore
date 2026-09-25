@@ -1,21 +1,21 @@
 # Secrets
 .env
 
-# Local data produced by the app
-settings.json
-Recordings/
 __pycache__/
 
-# Large model files (see README for download links)
-Yolo_Folder/yolov3.weights
+# User data: now in %APPDATA%\AccidentAI (these only exist in older checkouts, before migration)
+settings.json
 uploads_pending.json
+Recordings/
+Accidents_Screen/
 
-# Downloaded training images (download_training_data.py) and test videos
-Data/**/hf_cctv_*
-Data/**/detrac_*
-Traffic_vids/accident_*.mp4
+# Large model files (see README for where to get them) and local model backups
+assets/yolo/yolov3.weights
+assets/model/model_weights.h5
+assets/model/accident_model*.keras
+assets/model/backup_*/
 
-# Models too large for GitHub (100 MB limit) and local model backups
-model/model_weights.h5
-model/accident_model*.keras
-model/backup_*/
+# Downloaded training images (training/download_training_data.py) and test videos
+data/**/hf_cctv_*
+data/**/detrac_*
+samples/videos/accident_*.mp4

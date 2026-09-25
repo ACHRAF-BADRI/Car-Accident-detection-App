@@ -1,6 +1,6 @@
-"""Add CCTV images to Data/ for training (then run train_model.py).
+"""Add CCTV images to data/ for training (then run training/train_model.py).
 
-    python download_training_data.py
+    python training/download_training_data.py
 
 Accident:      justjuu/traffic-accident-cctv-object-detection (Hugging Face, CC0) - CCTV frames of collisions.
 Non accident:  UA-DETRAC (Hugging Face mirror abhineet123/ua_detrac) - normal traffic from road cameras.
@@ -21,7 +21,7 @@ from PIL import Image
 
 from remote_zip import HttpRangeFile
 
-DATA = "Data"
+DATA = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 HF = "https://huggingface.co/datasets"
 ACCIDENT_REPO = f"{HF}/justjuu/traffic-accident-cctv-object-detection/resolve/main/data"
 ACCIDENT_FILES = {"train": ["train-00000-of-00002.parquet", "train-00001-of-00002.parquet"],

@@ -1,7 +1,8 @@
 """Entry point: show the loading screen at once, import the heavy modules behind it, then open the app."""
 import threading
 
-from splash import Splash
+from desktop.paths import migrate_legacy_data
+from desktop.splash import Splash
 
 
 def main():
@@ -12,12 +13,13 @@ def main():
     except (AttributeError, OSError):
         pass
 
+    migrate_legacy_data()  # user data used to live in the project folder
     splash = Splash()
     loaded = {}
 
     def load():
         try:
-            import app  # TensorFlow, OpenCV, CustomTkinter...: the slow part
+            from desktop import app  # TensorFlow, OpenCV, CustomTkinter...: the slow part
             loaded["app"] = app
         except Exception as e:  # shown after the splash closes
             loaded["error"] = e

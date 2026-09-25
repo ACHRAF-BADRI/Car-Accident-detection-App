@@ -13,7 +13,7 @@ CARD = "#141d33"
 TEXT = "#e8ecf6"
 MUTED = "#8b97b5"
 ARC_COLORS = ("#3b82f6", "#8b5cf6")
-LOGO = "./Images/app_logo.png"
+from desktop.paths import APP_LOGO as LOGO, SETTINGS_FILE
 MESSAGES = {
     "fr": ("Détection d'accidents", ["Chargement des modules…", "Préparation de la détection…", "Ouverture de l'interface…"]),
     "en": ("Accident detection", ["Loading modules…", "Preparing detection…", "Opening the interface…"]),
@@ -22,7 +22,7 @@ MESSAGES = {
 
 def interface_language():
     try:
-        with open("./settings.json", encoding="utf-8") as f:
+        with open(SETTINGS_FILE, encoding="utf-8") as f:
             return json.load(f).get("language", "en")
     except (OSError, ValueError):
         return "en"

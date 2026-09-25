@@ -1,0 +1,36 @@
+# Render blueprint: https://render.com/docs/blueprint-spec
+# Deploys only the API server (server/). Secrets are NOT in this file: Render asks for them
+# ("sync: false") when the blueprint is created, and they stay in the Render dashboard.
+services:
+  - type: web
+    name: accidentai-api
+    runtime: python
+    plan: free                # sleeps after 15 min idle (first request then takes ~30-60 s); "starter" stays awake
+    region: frankfurt
+    buildCommand: pip install -r server/requirements.txt
+    startCommand: uvicorn server.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: accident_detection
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: JWT_EXPIRE_HOURS
+        value: "12"
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM
+        value: AccidentAI <onboarding@resend.dev>
+      - key: NOTIFY_EMAIL
+        sync: false
+      - key: NOTIFY_TIMEZONE
+        value: UTC                # e.g. Europe/Paris, Africa/Casablanca: time shown in the emails

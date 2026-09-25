@@ -8,10 +8,10 @@ from datetime import datetime
 import customtkinter as ctk
 from PIL import Image
 
-from api_client import ApiError, parse_time
-from i18n import t
-from recorder import format_elapsed
-from widgets import (ACCENT, APP_ICON, DANGER, DANGER_HOVER, MUTED, SUCCESS, SUCCESS_HOVER, TEXT, WARNING, WARNING_DARK,
+from desktop.cloud.api_client import ApiError, parse_time
+from desktop.detection.recorder import format_elapsed
+from desktop.i18n import t
+from desktop.ui.widgets import (ACCENT, APP_ICON, DANGER, DANGER_HOVER, MUTED, SUCCESS, SUCCESS_HOVER, TEXT, WARNING, WARNING_DARK,
                      BackgroundTasks, ConfirmDialog, StatCard, VideoPlayer, add_reveal_button, delete_all_button,
                      fit_size, human_size, media_item)
 

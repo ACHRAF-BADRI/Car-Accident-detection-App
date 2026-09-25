@@ -1,0 +1,9 @@
+# API server only (Render). The desktop app uses the requirements.txt at the project root.
+fastapi==0.115.6
+uvicorn[standard]==0.32.0
+pymongo[srv]==4.6.0
+python-dotenv==1.0.1
+PyJWT
+bcrypt
+pillow
+requests

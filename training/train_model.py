@@ -1,10 +1,10 @@
 """Train a stronger accident classifier (EfficientNetB0 / MobileNetV2 transfer learning) and compare it to the current model.
 
-    python train_model.py                # train, compare on Data/test, install only if better
-    python train_model.py --no-install   # train and compare, never replace the current model
+    python training/train_model.py                # train, compare on data/test, install only if better
+    python training/train_model.py --no-install   # train and compare, never replace the current model
 
 Same input as the app: a whole RGB frame resized to 250x250, values 0-255; output [Accident, Non Accident].
-The model is saved as model/accident_model.keras, which detection.py loads first when it exists.
+The model is saved as assets/model/accident_model.keras, which the app loads first when it exists.
 """
 import argparse
 import json
@@ -21,12 +21,14 @@ from keras.models import model_from_json
 
 from overlays import add_overlays, title_card
 
-DATA_DIR = "Data"
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # project folder, wherever this is run from
+MODEL_DIR = os.path.join(ROOT, "assets", "model")
+DATA_DIR = os.path.join(ROOT, "data")
 IMG_SIZE = (250, 250)      # what the app feeds the classifier
 BACKBONE_SIZE = (224, 224)  # what MobileNetV2's ImageNet weights were trained on
-NEW_MODEL = "model/accident_model.keras"
-OLD_JSON, OLD_WEIGHTS = "model/model.json", "model/model_weights.h5"
-REPORT = "model/training_report.json"
+NEW_MODEL = os.path.join(MODEL_DIR, "accident_model.keras")
+OLD_JSON, OLD_WEIGHTS = os.path.join(MODEL_DIR, "model.json"), os.path.join(MODEL_DIR, "model_weights.h5")
+REPORT = os.path.join(MODEL_DIR, "training_report.json")
 SEED = 42
 
 
@@ -190,13 +192,13 @@ def main():
 
     score = lambda name: (robust_results[name]["f1"] + results[name]["f1"], results[name]["accuracy"])
     better = all(score("new") > score(name) for name in results if name != "new")
-    current_name = "model/accident_model.keras" if "installed" in results else f"{OLD_JSON} + {OLD_WEIGHTS}"
+    current_name = NEW_MODEL if "installed" in results else f"{OLD_JSON} + {OLD_WEIGHTS}"
     installed = False
-    candidate = "model/accident_model_candidate.keras"
+    candidate = os.path.join(MODEL_DIR, "accident_model_candidate.keras")
     model.save(candidate)
     if better and not args.no_install:
         if os.path.exists(NEW_MODEL):  # keep the previous version
-            backup = f"model/backup_{datetime.now():%Y%m%d_%H%M%S}"
+            backup = os.path.join(MODEL_DIR, f"backup_{datetime.now():%Y%m%d_%H%M%S}")
             os.makedirs(backup, exist_ok=True)
             shutil.move(NEW_MODEL, os.path.join(backup, os.path.basename(NEW_MODEL)))
         shutil.move(candidate, NEW_MODEL)

@@ -11,6 +11,7 @@ client = MongoClient(os.environ["MONGODB_URI"], serverSelectionTimeoutMS=10000, 
 db = client[os.environ.get("MONGODB_DB", "accident_detection")]
 
 users = db["users"]
+downloads = db["downloads"]  # one document per click on the website's download button
 # Images and videos live in GridFS (bucket "media"): the bytes in media.chunks,
 # the owner / kind / capture time in media.files.metadata
 media = gridfs.GridFSBucket(db, bucket_name="media")
@@ -25,6 +26,8 @@ def init_db(hash_password):
     users.create_index([("username_lower", ASCENDING)], unique=True)
     media_files.create_index([("metadata.owner_id", ASCENDING), ("metadata.kind", ASCENDING), ("uploadDate", DESCENDING)])
     media_files.create_index([("metadata.captured_at", DESCENDING)])
+    downloads.create_index([("at", DESCENDING)])
+    downloads.create_index([("visitor", ASCENDING), ("at", DESCENDING)])
 
     # First start: create the admin account from .env so someone can manage the others
     username = os.environ.get("ADMIN_USERNAME")

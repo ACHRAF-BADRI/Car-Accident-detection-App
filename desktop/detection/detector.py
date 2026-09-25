@@ -3,15 +3,15 @@ import time
 import cv2
 import numpy as np
 from datetime import datetime
-from detection import AccidentDetectionModel
+from desktop.detection.classifier import AccidentDetectionModel
+from desktop.paths import SCREENSHOT_DIR, asset
 
-YOLO_WEIGHTS = "./Yolo_Folder/yolov3.weights"
-YOLO_CFG = "./Yolo_Folder/yolov3.cfg"
-YOLO_NAMES = "./Yolo_Folder/coco.names"
-MODEL_JSON = "./model/model.json"
-MODEL_WEIGHTS = "./model/model_weights.h5"
-MODEL_FILE = "./model/accident_model.keras"  # written by train_model.py, preferred when present
-SCREENSHOT_DIR = "./Accidents_Screen"
+YOLO_WEIGHTS = asset("yolo", "yolov3.weights")
+YOLO_CFG = asset("yolo", "yolov3.cfg")
+YOLO_NAMES = asset("yolo", "coco.names")
+MODEL_JSON = asset("model", "model.json")
+MODEL_WEIGHTS = asset("model", "model_weights.h5")
+MODEL_FILE = asset("model", "accident_model.keras")  # written by training/train_model.py, preferred when present
 
 # COCO class ids we care about -> box color (BGR)
 VEHICLE_COLORS = {

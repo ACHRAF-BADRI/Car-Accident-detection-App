@@ -10,10 +10,9 @@ import threading
 import time
 from datetime import datetime
 
-from api_client import ApiError
-from i18n import t
-
-PENDING_FILE = "./uploads_pending.json"
+from desktop.cloud.api_client import ApiError
+from desktop.i18n import t
+from desktop.paths import PENDING_FILE
 RETRY_DELAYS = (5, 30, 120)  # seconds between attempts before leaving it for the next login
 _file_lock = threading.Lock()
 

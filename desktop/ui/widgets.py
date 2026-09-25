@@ -8,11 +8,9 @@ import cv2
 import customtkinter as ctk
 from PIL import Image
 
-from i18n import t
-from recorder import format_elapsed
-
-APP_ICON = "./Images/app_icon.ico"
-APP_LOGO = "./Images/app_logo.png"  # same eye logo, larger, for in-app use
+from desktop.detection.recorder import format_elapsed
+from desktop.i18n import t
+from desktop.paths import APP_ICON, APP_LOGO  # re-exported: pages import them from here
 
 ACCENT = "#1f6aa5"
 DANGER = "#c0392b"

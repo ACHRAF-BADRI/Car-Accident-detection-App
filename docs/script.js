@@ -1,5 +1,8 @@
 const REPO = "ACHRAF-BADRI/Car-Accident-detection-App";
 const RELEASES_PAGE = `https://github.com/${REPO}/releases`;
+// API server on Render: each click on the download button is counted there and emailed to the owner.
+// Leave empty to disable. Example: "https://accidentai-api.onrender.com"
+const API_URL = "";
 
 /* ---------------------------------------------------------------- Translations */
 const I18N = {
@@ -23,8 +26,9 @@ const I18N = {
     "s2.title": "Recognise the accident", "s2.text": "A neural network trained on traffic scenes estimates the probability of an accident.",
     "s3.title": "Alert and keep a record", "s3.text": "Above the threshold: on-screen alert, snapshot saved, cloud upload and an entry in the event log.",
     "screens.eyebrow": "Preview", "screens.title": "A clear interface, built for monitoring",
-    "tab.detection": "Detection", "tab.profile": "My profile", "tab.settings": "Settings", "tab.login": "Sign in",
+    "tab.detection": "Detection", "tab.recordings": "Recordings", "tab.profile": "My profile", "tab.settings": "Settings", "tab.login": "Sign in",
     "cap.detection": "An accident detected live: boxed vehicles, probability and event log.",
+    "cap.recordings": "Recordings: thumbnails, built-in player from 0.5× to 16×, and the count of images and videos in the menu.",
     "cap.profile": "My profile: name, email and password, managed by each user.",
     "cap.settings_light": "Settings in the light theme: alert threshold, snapshots, camera, language, recording.",
     "cap.login": "Sign in or create an account, in English or French, light or dark.",
@@ -51,6 +55,7 @@ const I18N = {
 const FR = {};
 document.querySelectorAll("[data-i18n]").forEach((el) => { FR[el.dataset.i18n] = el.innerHTML; });
 Object.assign(FR, {
+  "cap.recordings": "Enregistrements : miniatures, lecteur intégré de 0,5× à 16×, et le nombre d'images et de vidéos dans le menu.",
   "cap.profile": "Mon profil : nom, e-mail et mot de passe, gérés par chaque utilisateur.",
   "cap.settings_light": "Les paramètres en thème clair : seuil d'alerte, captures, caméra, langue, enregistrement.",
   "cap.login": "Connexion ou création de compte, en français ou en anglais, en clair ou en sombre.",
@@ -113,6 +118,20 @@ function showRelease() {
   });
   buttons.forEach((b) => { b.href = release.url; b.removeAttribute("target"); b.querySelector("span").textContent = t("cta.download"); });
 }
+
+/* ---------------------------------------------------------------- Download notification */
+// sendBeacon: fire-and-forget, the download itself goes straight to GitHub and is never delayed
+document.querySelectorAll("[data-download]").forEach((button) => {
+  button.addEventListener("click", () => {
+    if (!API_URL || !release || release === "none") return; // nothing is downloaded yet: nothing to report
+    const payload = JSON.stringify({ version: release.version, lang });
+    try {
+      if (!navigator.sendBeacon(`${API_URL}/track/download`, payload)) throw new Error("beacon refused");
+    } catch (e) {
+      fetch(`${API_URL}/track/download`, { method: "POST", body: payload, mode: "no-cors", keepalive: true }).catch(() => {});
+    }
+  });
+});
 
 /* ---------------------------------------------------------------- Screenshots */
 let currentShot = "detection";

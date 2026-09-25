@@ -1,9 +1,9 @@
 """My profile: name and email, and changing one's own password."""
 import customtkinter as ctk
 
-from admin_page import error_text, fmt_date
-from i18n import t
-from widgets import DANGER, MUTED, SUCCESS, BackgroundTasks, add_reveal_button, role_badge
+from desktop.i18n import t
+from desktop.ui.admin_page import error_text, fmt_date
+from desktop.ui.widgets import DANGER, MUTED, SUCCESS, BackgroundTasks, add_reveal_button, role_badge
 
 
 class ProfilePage(ctk.CTkFrame):

@@ -13,18 +13,17 @@ import customtkinter as ctk
 from PIL import Image
 from tkinter import filedialog
 
-from admin_page import AdminPage
-from profile_page import ProfilePage
-from api_client import ApiClient, ApiError
-from detection_service import SCREENSHOT_DIR
-from i18n import LANGUAGES, t, set_language
-from recorder import DEFAULT_RECORD_DIR, DURATION_UNITS, VideoRecorder, duration_limit, format_elapsed
-from uploader import CloudUploader
-from widgets import (ACCENT, APP_ICON, APP_LOGO, DANGER, DANGER_HOVER, MUTED, SUCCESS, TEXT, WARNING, WARNING_DARK,
+from desktop.cloud.api_client import ApiClient, ApiError
+from desktop.cloud.uploader import CloudUploader
+from desktop.detection.recorder import DURATION_UNITS, VideoRecorder, duration_limit, format_elapsed
+from desktop.i18n import LANGUAGES, t, set_language
+from desktop.paths import RECORD_DIR, ROOT, SCREENSHOT_DIR, SETTINGS_FILE
+from desktop.ui.admin_page import AdminPage
+from desktop.ui.profile_page import ProfilePage
+from desktop.ui.widgets import (ACCENT, APP_ICON, APP_LOGO, DANGER, DANGER_HOVER, MUTED, SUCCESS, TEXT, WARNING, WARNING_DARK,
                      BackgroundTasks, ConfirmDialog, StatCard, VideoPlayer, add_reveal_button, delete_all_button,
                      fit_size, load_image, media_item, role_badge)
 
-SETTINGS_FILE = "./settings.json"
 DEFAULT_SETTINGS = {
     "threshold": 86,
     "save_screenshots": True,
@@ -33,12 +32,13 @@ DEFAULT_SETTINGS = {
     "appearance": "Dark",
     "language": "en",
     "record_webcam": False,
-    "record_dir": DEFAULT_RECORD_DIR,
+    "record_dir": RECORD_DIR,
     "record_unlimited": True,
     "record_duration": 1,
     "record_unit": "hours",
     "remember_username": False,
     "last_username": "",
+    "log_collapsed": False,
 }
 
 APPEARANCE_MODES = ["Light", "Dark", "System"]
@@ -269,24 +269,67 @@ class DetectionPage(ctk.CTkFrame):
         self.video = ctk.CTkLabel(body, text=t("detection.placeholder"),
                                   text_color=MUTED, corner_radius=12, fg_color=("gray85", "gray14"))
         self.video.grid(row=0, column=0, sticky="nsew")
+        self.video.image = None
 
-        log_box = ctk.CTkFrame(body, width=260, corner_radius=12)
+        # Event log, can be folded into a thin strip to give the video more room
+        log_box = self.log_box = ctk.CTkFrame(body, width=260, corner_radius=12)
         log_box.grid(row=0, column=1, sticky="ns", padx=(12, 0))
         log_box.grid_propagate(False)
         log_box.grid_rowconfigure(1, weight=1)
         log_box.grid_columnconfigure(0, weight=1)
-        ctk.CTkLabel(log_box, text=t("detection.event_log"), font=ctk.CTkFont(size=14, weight="bold")).grid(row=0, column=0, sticky="w", padx=12, pady=(10, 4))
+        self.log_title = ctk.CTkLabel(log_box, text=t("detection.event_log"), font=ctk.CTkFont(size=14, weight="bold"))
+        self.log_toggle = ctk.CTkButton(log_box, text="»", width=28, height=28, corner_radius=8, fg_color="transparent",
+                                        hover_color=("gray80", "gray25"), text_color=TEXT, font=ctk.CTkFont(size=16),
+                                        command=self.toggle_log)
         self.log = ctk.CTkTextbox(log_box, font=ctk.CTkFont(size=12), state="disabled", wrap="word")
-        self.log.grid(row=1, column=0, sticky="nsew", padx=8, pady=(0, 8))
+        self.unread_badge = ctk.CTkLabel(log_box, text="", width=26, height=22, corner_radius=11,
+                                         fg_color=ACCENT, text_color="white", font=ctk.CTkFont(size=11, weight="bold"))
+        self.unread = 0
+        self.show_log(not app.settings.get("log_collapsed", False))
 
         self.log_event(t("log.loading_models"))
 
     # -- helpers
+    def show_log(self, expanded):
+        for w in (self.log_title, self.log_toggle, self.log, self.unread_badge):
+            w.grid_forget()
+        if expanded:
+            self.log_box.configure(width=260)
+            self.log_title.grid(row=0, column=0, sticky="w", padx=12, pady=(10, 4))
+            self.log_toggle.configure(text="»")
+            self.log_toggle.grid(row=0, column=1, sticky="e", padx=(0, 8), pady=(10, 4))
+            self.log.grid(row=1, column=0, columnspan=2, sticky="nsew", padx=8, pady=(0, 8))
+            self.unread = 0
+        else:
+            self.log_box.configure(width=44)
+            self.log_toggle.configure(text="«")
+            self.log_toggle.grid(row=0, column=0, columnspan=2, pady=(10, 4))
+            self.update_unread()
+        self.log_expanded = expanded
+
+    def toggle_log(self):
+        self.show_log(not self.log_expanded)
+        if getattr(self, "last_image", None) is not None and self.video.image is not None:
+            # the video area changed size: redraw the frame on screen now, not at the next one
+            self.after(30, lambda: self.draw_image(self.last_image))
+        self.app.settings["log_collapsed"] = not self.log_expanded
+        save_settings(self.app.settings)
+
+    def update_unread(self):
+        if self.unread:
+            self.unread_badge.configure(text=str(min(self.unread, 99)))
+            self.unread_badge.grid(row=1, column=0, columnspan=2, sticky="n", pady=4)
+        else:
+            self.unread_badge.grid_forget()
+
     def log_event(self, text):
         self.log.configure(state="normal")
         self.log.insert("end", f"[{datetime.now():%H:%M:%S}] {text}\n")
         self.log.see("end")
         self.log.configure(state="disabled")
+        if not self.log_expanded:  # folded: count what arrives so no alert goes unnoticed
+            self.unread += 1
+            self.update_unread()
 
     def set_running(self, running, pausable=False):
         state = "disabled" if running else "normal"
@@ -368,6 +411,7 @@ class DetectionPage(ctk.CTkFrame):
         self.video = ctk.CTkLabel(body, text=t("detection.placeholder"),
                                   text_color=MUTED, corner_radius=12, fg_color=("gray85", "gray14"))
         self.video.grid(row=0, column=0, sticky="nsew")
+        self.video.image = self.last_image = None  # nothing to redraw after a stop
 
     def run(self, source):
         # Webcams go through DirectShow so the index matches the names listed in Settings
@@ -476,13 +520,17 @@ class DetectionPage(ctk.CTkFrame):
                 self.clear_video()
                 self.reset_stats()
 
-    def show_frame(self, image, info):
+    def draw_image(self, image):
+        self.last_image = image
         box_w, box_h = max(self.video.winfo_width(), 1), max(self.video.winfo_height(), 1)
         scale = min(box_w / image.width, box_h / image.height)
         size = (max(int(image.width * scale), 1), max(int(image.height * scale), 1))
         photo = ctk.CTkImage(image, image, size=size)
         self.video.configure(image=photo, text="")
         self.video.image = photo
+
+    def show_frame(self, image, info):
+        self.draw_image(image)
 
         self.vehicles_card.set(str(info["vehicles"]))
         if info["recording"] is not None:
@@ -966,6 +1014,13 @@ class MainFrame(ctk.CTkFrame):
             btn.grid(row=2 + i, column=0, padx=12, pady=3, sticky="ew")
             self.nav[name] = btn
 
+        # How many images / recordings this account has, next to their menu entries
+        self.count_badges = {}
+        for name in ("gallery", "recordings"):
+            badge = ctk.CTkLabel(self.nav[name], text="", height=20, corner_radius=10, fg_color=("gray78", "gray30"),
+                                 text_color=TEXT, font=ctk.CTkFont(size=11, weight="bold"))
+            self.count_badges[name] = badge
+
         self.model_status = ctk.CTkLabel(side, text=t("models.loading"), text_color=WARNING)
         self.model_status.grid(row=21, column=0, padx=20, pady=6, sticky="w")
         ctk.CTkButton(side, text=t("sidebar.logout"), height=36, fg_color="transparent", border_width=1,
@@ -974,7 +1029,23 @@ class MainFrame(ctk.CTkFrame):
                       command=app.confirm_exit).grid(row=23, column=0, padx=12, pady=(8, 20), sticky="ew")
         self.app = app
         self.show_identity()
+        self.update_counts()
         self.after(500, self.show_upload_messages)
+
+    def update_counts(self):
+        """Refresh the menu badges every 2 s: new snapshots, finished recordings and deletions show up by themselves."""
+        if not self.winfo_exists():
+            return
+        counts = {"gallery": len(list_screenshots(self.app.user_dir(SCREENSHOT_DIR))),
+                  "recordings": len(list_recordings(self.app.user_dir(self.app.settings["record_dir"])))}
+        for name, count in counts.items():
+            badge = self.count_badges[name]
+            if count:
+                badge.configure(text=f" {count if count < 1000 else '999+'} ")
+                badge.place(relx=1.0, x=-10, rely=0.5, anchor="e")
+            else:
+                badge.place_forget()
+        self.after(2000, self.update_counts)
 
     def show_identity(self):
         user = self.app.api.user
@@ -995,6 +1066,11 @@ class MainFrame(ctk.CTkFrame):
             self.nav[n].configure(fg_color="transparent", text_color=("gray10", "gray90"))
         self.pages[name].grid(row=0, column=0, sticky="nsew")
         self.nav[name].configure(fg_color=ACCENT, text_color=("gray95", "gray95"))
+        for n, badge in getattr(self, "count_badges", {}).items():  # light badge on the blue (selected) entry
+            active = n == name
+            badge.configure(bg_color=ACCENT if active else "transparent",
+                            fg_color="#dbe8f8" if active else ("gray78", "gray30"),
+                            text_color="#174a80" if active else TEXT)
         if name in ("gallery", "recordings", "admin"):
             self.pages[name].refresh()
 
@@ -1053,7 +1129,7 @@ class App(ctk.CTk):
             flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
             self.server_process = subprocess.Popen(
                 [sys.executable, "-m", "uvicorn", "server.main:app", "--host", host, "--port", port],
-                cwd=os.path.dirname(os.path.abspath(__file__)), creationflags=flags,
+                cwd=ROOT, creationflags=flags,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             for _ in range(60):
                 if self.api.is_up():
@@ -1070,7 +1146,7 @@ class App(ctk.CTk):
 
     def load_models(self):
         try:
-            from detection_service import AccidentDetector
+            from desktop.detection.detector import AccidentDetector
             self.detector = AccidentDetector()
         except Exception as e:  # surface the error in the UI instead of crashing
             self.model_error = str(e)

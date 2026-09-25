@@ -9,7 +9,7 @@
 The downloaded files (`hf_cctv_*`, `detrac_*`) are not committed to git. Recreate them with:
 
 ```bash
-python download_training_data.py
+python training/download_training_data.py
 ```
 
 Use for study / non-commercial purposes only.

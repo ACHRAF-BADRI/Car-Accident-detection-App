@@ -2,9 +2,13 @@
 
 Run:  python -m uvicorn server.main:app --host 127.0.0.1 --port 8000
 """
+import hashlib
 import io
+import json
+import os
 import re
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from bson import ObjectId
 from bson.errors import InvalidId
@@ -16,7 +20,8 @@ from starlette.concurrency import run_in_threadpool
 
 from server.auth import (check_password, create_token, current_user, hash_password, public_user,
                          require_admin)
-from server.db import db, init_db, media, media_files, now, users
+from server.db import db, downloads, init_db, media, media_files, now, users
+from server.notify import download_email, send_email
 
 app = FastAPI(title="Accident Detection API")
 USERNAME_RE = re.compile(r"^[A-Za-z0-9_.-]{3,32}$")
@@ -28,6 +33,58 @@ KINDS = {"image", "video"}
 @app.on_event("startup")
 def startup():
     init_db(hash_password)
+
+
+# ---------------------------------------------------------------- Download notifications (website)
+
+EMAIL_EVERY_VISITOR_MINUTES = 10  # the same visitor clicking again within 10 min is counted, not emailed
+MAX_EMAILS_PER_HOUR = 20          # protects the mailbox (and the Resend quota) against spam clicks
+
+
+def describe_agent(ua):
+    os_name = next((name for key, name in (("Windows NT 10", "Windows 10/11"), ("Windows NT 6.3", "Windows 8.1"),
+                                          ("Windows", "Windows"), ("Mac OS X", "macOS"), ("Android", "Android"),
+                                          ("iPhone", "iOS"), ("iPad", "iPadOS"), ("Linux", "Linux")) if key in ua), "?")
+    browser = next((name for key, name in (("Edg/", "Edge"), ("OPR/", "Opera"), ("Firefox/", "Firefox"),
+                                          ("Chrome/", "Chrome"), ("Safari/", "Safari")) if key in ua), "?")
+    return f"{os_name} · {browser}"
+
+
+def local_time():
+    try:
+        return datetime.now(ZoneInfo(os.environ.get("NOTIFY_TIMEZONE", "UTC"))).strftime("%d/%m/%Y %H:%M:%S %Z")
+    except ZoneInfoNotFoundError:
+        return now().strftime("%d/%m/%Y %H:%M:%S UTC")
+
+
+@app.post("/track/download")
+async def track_download(request: Request):
+    """Called by the website (navigator.sendBeacon) when the download button is clicked.
+    Counts every click and emails the owner, without storing the visitor's IP address."""
+    try:
+        data = json.loads((await request.body())[:2000] or b"{}")
+        data = data if isinstance(data, dict) else {}
+    except ValueError:
+        data = {}
+    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "")).split(",")[0].strip()
+    visitor = hashlib.sha256((os.environ.get("JWT_SECRET_KEY", "") + ip).encode()).hexdigest()[:16]  # anonymous id
+    ua = request.headers.get("user-agent", "")[:300]
+    since_visitor = now() - timedelta(minutes=EMAIL_EVERY_VISITOR_MINUTES)
+    should_email = (downloads.count_documents({"visitor": visitor, "at": {"$gte": since_visitor}}) == 0
+                    and downloads.count_documents({"emailed": True, "at": {"$gte": now() - timedelta(hours=1)}}) < MAX_EMAILS_PER_HOUR)
+    doc = {"at": now(), "visitor": visitor, "user_agent": ua, "version": str(data.get("version", ""))[:40],
+           "page_language": str(data.get("lang", ""))[:5], "referrer": request.headers.get("referer", "")[:200],
+           "emailed": should_email}
+    downloads.insert_one(doc)
+    if should_email:
+        total = downloads.count_documents({})
+        info = {"Date": local_time(), "Version": doc["version"] or "—", "Système · navigateur": describe_agent(ua),
+                "Langue du site": doc["page_language"].upper() or "—",
+                "Langue du navigateur": request.headers.get("accept-language", "").split(",")[0]}
+        sent = await run_in_threadpool(send_email, f"AccidentAI téléchargé ({total})", download_email(info, total))
+        if not sent:  # keep "emailed" true only for emails that really left (it feeds the hourly cap)
+            downloads.update_one({"_id": doc["_id"]}, {"$set": {"emailed": False}})
+    return Response(status_code=204)
 
 
 @app.get("/health")

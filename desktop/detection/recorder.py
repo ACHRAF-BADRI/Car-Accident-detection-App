@@ -4,7 +4,6 @@ from datetime import datetime
 
 import cv2
 
-DEFAULT_RECORD_DIR = "./Recordings"
 DURATION_UNITS = {"minutes": 60, "hours": 3600, "days": 86400}
 
 

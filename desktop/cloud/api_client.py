@@ -6,6 +6,8 @@ from datetime import datetime
 
 import requests
 
+from desktop.paths import ENV_FILE
+
 DEFAULT_API_URL = "http://127.0.0.1:8000"
 REFRESH_AFTER = 3600  # renew the token every hour so multi-day webcam sessions stay signed in
 
@@ -15,7 +17,7 @@ def api_url_from_env():
     if os.environ.get("API_URL"):
         return os.environ["API_URL"]
     try:
-        with open(os.path.join(os.path.dirname(__file__), ".env"), encoding="utf-8") as f:
+        with open(ENV_FILE, encoding="utf-8") as f:
             for line in f:
                 if line.strip().startswith("API_URL="):
                     return line.split("=", 1)[1].strip()
