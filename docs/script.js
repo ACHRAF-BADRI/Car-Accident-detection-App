@@ -45,6 +45,7 @@ const I18N = {
     "q5": "Which videos can I analyse?", "a5": "MP4, AVI, MKV, WEBM and MOV files, and webcams plugged into the PC. Fixed surveillance cameras give the best results.",
     "footer.text": "Accident detection with computer vision — Python, OpenCV, TensorFlow.",
     "footer.author": "© 2026 · Made by",
+    "top": "Back to top",
     "release.loading": "Looking for the latest version…",
     "release.found": "Version {version} · {size} · {date}",
     "release.soon": "Installer coming soon — see the releases page on GitHub.",
@@ -63,6 +64,7 @@ Object.assign(FR, {
   "release.found": "Version {version} · {size} · {date}",
   "release.soon": "Programme d'installation bientôt disponible — voir la page des versions sur GitHub.",
   "release.soonBtn": "Bientôt disponible sur GitHub",
+  "top": "Revenir en haut",
 });
 I18N.fr = FR;
 
@@ -79,6 +81,9 @@ function applyLanguage(next) {
     if (text) el.innerHTML = text; // our own static strings only
   });
   document.getElementById("shot-caption").innerHTML = t(`cap.${currentShot}`);
+  const toTopButton = document.getElementById("to-top");  // translated tooltip / screen-reader label
+  toTopButton.title = toTopButton.ariaLabel = t("top");
+  toTopButton.setAttribute("aria-label", t("top"));
   showRelease();
   try { localStorage.setItem("lang", lang); } catch (e) { /* storage unavailable: language just isn't remembered */ }
 }
@@ -176,6 +181,13 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.12 });
 document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+
+/* ---------------------------------------------------------------- Back to top */
+const toTop = document.getElementById("to-top");
+const updateToTop = () => toTop.classList.toggle("show", window.scrollY > 600);
+window.addEventListener("scroll", updateToTop, { passive: true });
+toTop.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+updateToTop();
 
 /* ---------------------------------------------------------------- Start */
 document.getElementById("lang-toggle").addEventListener("click", () => applyLanguage(lang === "fr" ? "en" : "fr"));

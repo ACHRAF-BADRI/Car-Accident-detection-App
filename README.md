@@ -184,4 +184,4 @@ Python · OpenCV · TensorFlow / Keras · CustomTkinter · FastAPI · MongoDB At
 
 ## Author
 
-**ACHRAF EL BADRI** — [GitHub](https://github.com/ACHRAF-BADRI)
+**ACHRAF EL BADRI** : [GitHub](https://github.com/ACHRAF-BADRI)
