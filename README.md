@@ -40,7 +40,7 @@ desktop/                    the Windows app
 ├── ui/                     widgets, admin area, profile page
 ├── detection/              detector.py (YOLOv3 + classifier), classifier.py, recorder.py
 └── cloud/                  api_client.py, uploader.py
-server/                     API (FastAPI): auth, media (GridFS), admin, download emails — deployed on Render
+server/                     API (FastAPI): auth, media (GridFS), admin, download emails, deployed on Render
 training/                   train_model.py, download_training_data.py, overlays.py, training_cnn.ipynb
 assets/                     images/ (logo, icon), yolo/ (YOLOv3), model/ (accident classifier)
 data/                       training images: train / val / test, Accident / Non Accident
@@ -64,8 +64,8 @@ Requires **Windows 10 / 11** and **Python 3.11** (tested with TensorFlow / Keras
     ```
 
 2. **Add the two model files**, which are too large for the repository (GitHub limit: 100 MB):
-    - `assets/yolo/yolov3.weights` — download it from https://huggingface.co/spaces/Epitech/Scarecrow/blob/main/yolov3.weights
-    - `assets/model/model_weights.h5` — the accident classifier, produced by `training/training_cnn.ipynb` (or retrained with `training/train_model.py`, see below)
+    - `assets/yolo/yolov3.weights`: download it from https://huggingface.co/spaces/Epitech/Scarecrow/blob/main/yolov3.weights
+    - `assets/model/model_weights.h5`: the accident classifier, produced by `training/training_cnn.ipynb` (or retrained with `training/train_model.py`, see below)
 
 3. **Create the `.env` file** from the template, then fill in your values (every variable is explained in [.env.example](.env.example); `.env` is git-ignored, never commit it):
 
