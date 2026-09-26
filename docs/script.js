@@ -182,6 +182,15 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.12 });
 document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
 
+/* ---------------------------------------------------------------- Logo: reload the page, from the top */
+document.getElementById("brand-link").addEventListener("click", (e) => {
+  e.preventDefault();
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual"; // reopen at the top, not where it was
+  const base = location.pathname + location.search;
+  if (location.hash) location.replace(base); // drop "#features" etc., which would jump back down
+  else location.reload();
+});
+
 /* ---------------------------------------------------------------- Back to top */
 const toTop = document.getElementById("to-top");
 const updateToTop = () => toTop.classList.toggle("show", window.scrollY > 600);
