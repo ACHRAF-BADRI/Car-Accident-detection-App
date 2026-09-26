@@ -67,21 +67,10 @@ Requires **Windows 10 / 11** and **Python 3.11** (tested with TensorFlow / Keras
     - `assets/yolo/yolov3.weights` — download it from https://huggingface.co/spaces/Epitech/Scarecrow/blob/main/yolov3.weights
     - `assets/model/model_weights.h5` — the accident classifier, produced by `training/training_cnn.ipynb` (or retrained with `training/train_model.py`, see below)
 
-3. **Create a `.env` file** at the project root (it is git-ignored, never commit it):
+3. **Create the `.env` file** from the template, then fill in your values (every variable is explained in [.env.example](.env.example); `.env` is git-ignored, never commit it):
 
-    ```
-    MONGODB_URI=mongodb+srv://<user>:<password>@<cluster>/?retryWrites=true&w=majority
-    MONGODB_DB=accident_detection
-    JWT_SECRET_KEY=<long random string>
-    JWT_EXPIRE_HOURS=12
-    ADMIN_USERNAME=<first admin>
-    ADMIN_PASSWORD=<their password>
-    API_URL=http://127.0.0.1:8000
-    # optional: email on each download from the website (Resend)
-    RESEND_API_KEY=<re_... key, "sending access" only>
-    RESEND_FROM=AccidentAI <onboarding@resend.dev>
-    NOTIFY_EMAIL=<where to receive the emails>
-    NOTIFY_TIMEZONE=UTC
+    ```bash
+    copy .env.example .env      # Windows (cmd / PowerShell); cp on Git Bash
     ```
 
     The admin account is created the first time the server starts. Everyone else signs up from the login screen (role "user"); an admin can promote them.
