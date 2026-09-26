@@ -44,6 +44,7 @@ const I18N = {
     "q4": "Is detection 100% reliable?", "a4": "No. It is a monitoring aid: it can miss an accident or raise a false alarm. The alert threshold can be tuned in the settings.",
     "q5": "Which videos can I analyse?", "a5": "MP4, AVI, MKV, WEBM and MOV files, and webcams plugged into the PC. Fixed surveillance cameras give the best results.",
     "footer.text": "Accident detection with computer vision — Python, OpenCV, TensorFlow.",
+    "footer.author": "© 2026 · Made by",
     "release.loading": "Looking for the latest version…",
     "release.found": "Version {version} · {size} · {date}",
     "release.soon": "Installer coming soon — see the releases page on GitHub.",

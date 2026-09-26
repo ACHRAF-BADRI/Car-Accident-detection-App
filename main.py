@@ -1,4 +1,5 @@
 """Entry point: show the loading screen at once, import the heavy modules behind it, then open the app."""
+import sys
 import threading
 
 from desktop.paths import migrate_legacy_data
@@ -33,4 +34,7 @@ def main():
 
 
 if __name__ == "__main__":
+    if "--self-test" in sys.argv:  # check the (installed) app without a window, see desktop/selftest.py
+        from desktop.selftest import run
+        sys.exit(run())
     main()

@@ -19,3 +19,7 @@ assets/model/backup_*/
 data/**/hf_cctv_*
 data/**/detrac_*
 samples/videos/accident_*.mp4
+
+# Build output (packaging/)
+build/
+dist/

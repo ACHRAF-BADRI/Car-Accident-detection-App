@@ -46,6 +46,7 @@ assets/                     images/ (logo, icon), yolo/ (YOLOv3), model/ (accide
 data/                       training images: train / val / test, Accident / Non Accident
 samples/                    test videos and example snapshots
 docs/                       website (GitHub Pages)
+packaging/                  PyInstaller spec and Inno Setup script for the Windows installer
 ```
 
 User data is kept outside the project, in `%APPDATA%\AccidentAI\`: `settings.json`, `Accidents_Screen/<username>/`, `Recordings/<username>/` and the pending uploads. Data from older versions (in the project folder) is moved there automatically on first launch.
@@ -139,6 +140,30 @@ Test videos are in `samples/videos/` (credits in [samples/videos/SOURCES.md](sam
 
 The free Render plan sleeps after 15 minutes without requests; the next request then takes 30-60 s.
 
+### Building the Windows installer
+
+Needs `pip install pyinstaller` and [Inno Setup 6](https://jrsoftware.org/isinfo.php) (`winget install JRSoftware.InnoSetup`). The two model files must be in `assets/` (see Installation).
+
+1. Set the version in `desktop/config.py` (`APP_VERSION`); `PUBLIC_API_URL` is the online API the installed app uses.
+2. Build the app (one folder, ~1.8 GB, no `.env` and no server code inside):
+
+    ```bash
+    python -m PyInstaller packaging/AccidentAI.spec --noconfirm --workpath build --distpath dist
+    dist\AccidentAI\AccidentAI.exe --self-test
+    ```
+
+    The self-test loads the models, analyses a traffic frame and pings the API; its report is written to `%TEMP%\AccidentAI-selftest.json` (exit code 0 = OK).
+
+3. Build the installer (from PowerShell or cmd):
+
+    ```
+    "%LOCALAPPDATA%\Programs\Inno Setup 6\ISCC.exe" /DAppVersion=1.0.0 packaging\installer.iss
+    ```
+
+    Output: `dist\AccidentAI-Setup-1.0.0.exe`. It installs for the current user without administrator rights (all users is offered), adds Start menu / desktop shortcuts and an uninstaller. User data in `%APPDATA%\AccidentAI` is kept on uninstall.
+
+4. Publish it: GitHub → **Releases → Draft a new release**, tag `v1.0.0`, attach the setup file. The website's download button picks it up automatically.
+
 ### Website and download emails
 
 `docs/` is a static site (HTML / CSS / JS, EN / FR) for **GitHub Pages**: *Settings → Pages → Deploy from a branch → `main` / `docs`*. Its download button reads the latest **GitHub Release** and links to the attached `.exe`; until a release exists it points to the releases page.
@@ -156,3 +181,7 @@ Without a verified domain in Resend, emails are sent from `onboarding@resend.dev
 ## Built with
 
 Python · OpenCV · TensorFlow / Keras · CustomTkinter · FastAPI · MongoDB Atlas (PyMongo, GridFS) · PyJWT · bcrypt
+
+## Author
+
+**ACHRAF EL BADRI** — [GitHub](https://github.com/ACHRAF-BADRI)

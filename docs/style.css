@@ -208,6 +208,9 @@ html[lang="fr"] .lang [data-lang="fr"], html[lang="en"] .lang [data-lang="en"] {
 .footer-inner { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 .footer-inner p { color: var(--muted); font-size: 14px; flex: 1; }
 .footer-inner a { color: var(--sky); font-weight: 600; }
+.footer-bottom { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13px; text-align: center; }
+.footer-bottom a { color: var(--text); font-weight: 700; letter-spacing: .02em; }
+.footer-bottom a:hover { color: var(--sky); }
 
 /* ---------- Lightbox ---------- */
 .lightbox { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 24px; background: rgba(3, 6, 15, 0.9); backdrop-filter: blur(6px); }

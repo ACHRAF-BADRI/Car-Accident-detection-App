@@ -6,24 +6,26 @@ from datetime import datetime
 
 import requests
 
+from desktop.config import FROZEN, PUBLIC_API_URL
 from desktop.paths import ENV_FILE
 
-DEFAULT_API_URL = "http://127.0.0.1:8000"
 REFRESH_AFTER = 3600  # renew the token every hour so multi-day webcam sessions stay signed in
 
 
 def api_url_from_env():
-    """API_URL from the environment or the project's .env file (without the server's secrets)."""
+    """API_URL environment variable, else (from source only) API_URL in the project's .env, else the online API.
+    The installed app never reads a .env: it has no secrets and always talks to the online server."""
     if os.environ.get("API_URL"):
         return os.environ["API_URL"]
-    try:
-        with open(ENV_FILE, encoding="utf-8") as f:
-            for line in f:
-                if line.strip().startswith("API_URL="):
-                    return line.split("=", 1)[1].strip()
-    except OSError:
-        pass
-    return DEFAULT_API_URL
+    if not FROZEN:
+        try:
+            with open(ENV_FILE, encoding="utf-8") as f:
+                for line in f:
+                    if line.strip().startswith("API_URL="):
+                        return line.split("=", 1)[1].strip()
+        except OSError:
+            pass
+    return PUBLIC_API_URL
 
 
 class ApiError(Exception):
@@ -85,7 +87,7 @@ class ApiClient:
     # -- auth
     def is_up(self):
         try:
-            return self.session.get(self.base_url + "/health", timeout=3).ok
+            return self.session.get(self.base_url + "/health", timeout=8).ok
         except requests.RequestException:
             return False
 

@@ -17,6 +17,7 @@ from desktop.cloud.api_client import ApiClient, ApiError
 from desktop.cloud.uploader import CloudUploader
 from desktop.detection.recorder import DURATION_UNITS, VideoRecorder, duration_limit, format_elapsed
 from desktop.i18n import LANGUAGES, t, set_language
+from desktop.config import FROZEN
 from desktop.paths import RECORD_DIR, ROOT, SCREENSHOT_DIR, SETTINGS_FILE
 from desktop.ui.admin_page import AdminPage
 from desktop.ui.profile_page import ProfilePage
@@ -165,8 +166,8 @@ class LoginFrame(ctk.CTkFrame):
 
     def watch_server(self):
         state = self.app.server_state
-        text, color = {"checking": (t("server.checking"), WARNING), "up": (t("server.up"), SUCCESS),
-                       "down": (t("server.down"), DANGER)}[state]
+        text, color = {"checking": (t("server.checking"), WARNING), "waking": (t("server.waking"), WARNING),
+                       "up": (t("server.up"), SUCCESS), "down": (t("server.down"), DANGER)}[state]
         self.server_label.configure(text=f"● {text}", text_color=color)
         self.after(400, self.watch_server)
 
@@ -1119,12 +1120,23 @@ class App(ctk.CTk):
         self.login.pack(fill="both", expand=True)
 
     def connect_server(self):
-        """Use the API if it runs; if it is this PC's own server and it is off, start it."""
+        """Use the API if it runs. A local server that is off is started (from source only); an online
+        server that is asleep (Render free plan) is given about 90 s to wake up."""
         if self.api.is_up():
             self.server_state = "up"
             return
         host = urlparse(self.api.base_url).hostname
-        if host in ("127.0.0.1", "localhost"):
+        if host not in ("127.0.0.1", "localhost"):
+            self.server_state = "waking"
+            deadline = time.time() + 90
+            while time.time() < deadline:
+                if self.api.is_up():
+                    self.server_state = "up"
+                    return
+                time.sleep(2)
+            self.server_state = "down"
+            return
+        if not FROZEN:  # the installed app has no server code (and no secrets) to start
             port = str(urlparse(self.api.base_url).port or 8000)
             flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
             self.server_process = subprocess.Popen(
