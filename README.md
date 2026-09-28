@@ -171,6 +171,17 @@ Without a verified domain in Resend, emails are sent from `onboarding@resend.dev
 
 Python · OpenCV · TensorFlow / Keras · CustomTkinter · FastAPI · MongoDB Atlas (PyMongo, GridFS) · PyJWT · bcrypt
 
+## License
+
+AccidentAI is **source available** under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+- **Free for noncommercial use:** personal projects, learning, school and university work, research, charities and other noncommercial organizations can read, run, modify and share it.
+- **Not for commercial use:** selling it, offering it as a paid or hosted service, or using it inside a company for business purposes needs a separate commercial license. Contact **ACHRAF EL BADRI** through [github.com/ACHRAF-BADRI](https://github.com/ACHRAF-BADRI).
+- The official download page is [accidentai.pages.dev](https://accidentai.pages.dev).
+- Third-party parts keep their own licenses: the YOLOv3 weights, the training images ([data/SOURCES.md](data/SOURCES.md)) and the test videos ([samples/videos/SOURCES.md](samples/videos/SOURCES.md)).
+
+Copyright (c) 2026 ACHRAF EL BADRI. Anyone sharing the code must keep the `Required Notice` line at the top of the [LICENSE](LICENSE) file.
+
 ## Author
 
 **ACHRAF EL BADRI**   [GitHub](https://github.com/ACHRAF-BADRI)
