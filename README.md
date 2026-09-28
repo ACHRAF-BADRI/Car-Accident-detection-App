@@ -8,7 +8,7 @@ Windows desktop application that detects road accidents in real time on a video 
 |---|---|
 | ![Recordings page with the built-in player](docs/assets/screens/recordings.jpg) | ![Settings page in the light theme](docs/assets/screens/settings_light.jpg) |
 
-**Website:** https://achraf-badri.github.io/Car-Accident-detection-App/ (download page, served from `docs/`)
+**Website:** https://accidentai.pages.dev/ (download page, served from `docs/` by Cloudflare Pages)
 
 ## Features
 
@@ -45,7 +45,7 @@ training/                   train_model.py, download_training_data.py, overlays.
 assets/                     images/ (logo, icon), yolo/ (YOLOv3), model/ (accident classifier)
 data/                       training images: train / val / test, Accident / Non Accident
 samples/                    test videos and example snapshots
-docs/                       website (GitHub Pages)
+docs/                       website (Cloudflare Pages)
 packaging/                  PyInstaller spec and Inno Setup script for the Windows installer
 ```
 
@@ -117,7 +117,7 @@ Test videos are in `samples/videos/` (credits in [samples/videos/SOURCES.md](sam
 |---|---|
 | API server (`server/`) | **Render**, from `render.yaml` |
 | Database | **MongoDB Atlas** |
-| Download page (`docs/`) | **GitHub Pages** |
+| Download page (`docs/`) | **Cloudflare Pages** |
 | Installer (`.exe`) | **GitHub Releases** (up to 2 GB per file) |
 
 ### API server on Render
@@ -155,7 +155,7 @@ Needs `pip install pyinstaller` and [Inno Setup 6](https://jrsoftware.org/isinfo
 
 ### Website and download emails
 
-`docs/` is a static site (HTML / CSS / JS, EN / FR) for **GitHub Pages**: *Settings → Pages → Deploy from a branch → `main` / `docs`*. Its download button reads the latest **GitHub Release** and links to the attached `.exe`; until a release exists it points to the releases page.
+`docs/` is a static site (HTML / CSS / JS, EN / FR), hosted on **Cloudflare Pages** and redeployed on every push to `main`: *Workers & Pages → Create → Pages → Connect to Git* → this repository, framework preset **None**, build command empty, build output directory **`docs`**. Its download button reads the latest **GitHub Release** and links to the attached `.exe`; until a release exists it points to the releases page.
 
 When `API_URL` is set in `docs/script.js`, each click on the download button is reported to `POST /track/download`: the server counts it (collection `downloads`, no IP address stored) and emails `NOTIFY_EMAIL` through **Resend**, at most once per visitor every 10 minutes and 20 emails per hour. The download itself goes straight to GitHub and is never delayed.
 
