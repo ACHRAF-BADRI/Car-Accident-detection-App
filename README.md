@@ -8,7 +8,7 @@ Windows desktop application that detects road accidents in real time on a video 
 |---|---|
 | ![Recordings page with the built-in player](docs/assets/screens/recordings.jpg) | ![Settings page in the light theme](docs/assets/screens/settings_light.jpg) |
 
-**Website:** https://accidentai.pages.dev (download page, served from `docs/` by Cloudflare Pages)
+**Website:** [accidentai.pages.dev](https://accidentai.pages.dev) (download page, served from `docs/` by Cloudflare Pages)
 
 ## Features
 
