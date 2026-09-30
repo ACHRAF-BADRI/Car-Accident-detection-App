@@ -1,5 +1,16 @@
 # AccidentAI : Car Accident Detection
 
+![Python](https://img.shields.io/badge/Python-3.11-3776ab?logo=python&logoColor=white)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.15-ff6f00?logo=tensorflow&logoColor=white)
+![OpenCV](https://img.shields.io/badge/OpenCV-YOLOv3-5c3ee8?logo=opencv&logoColor=white)
+![CustomTkinter](https://img.shields.io/badge/UI-CustomTkinter-1f6aa5?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47a248?logo=mongodb&logoColor=white)
+![Render](https://img.shields.io/badge/API-Render-46e3b7?logo=render&logoColor=white)
+![Cloudflare Pages](https://img.shields.io/badge/Website-Cloudflare%20Pages-f38020?logo=cloudflare&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078d4?logo=windows&logoColor=white)
+![License](https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-lightgrey)
+
 Windows desktop application that detects road accidents in real time on a video file or a webcam. It finds the vehicles with **YOLOv3**, estimates the probability of an accident with a **CNN**, raises an alert, saves snapshots and recordings, and backs everything up to **MongoDB Atlas** through a small FastAPI server.
 
 ![AccidentAI detecting an accident](docs/assets/screens/detection.jpg)
